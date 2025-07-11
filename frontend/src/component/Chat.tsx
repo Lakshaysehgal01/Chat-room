@@ -20,7 +20,7 @@ const Chat: React.FC<ChatProps> = ({ name, roomId }) => {
   const bottomRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
-    const socket = new WebSocket("ws://localhost:8080");
+    const socket = new WebSocket("wss://chat-room-8yfk.onrender.com/");
     socketRef.current = socket;
 
     socket.onopen = () => {
@@ -80,7 +80,7 @@ const Chat: React.FC<ChatProps> = ({ name, roomId }) => {
   const handleCopyRoomId = async () => {
     try {
       await navigator.clipboard.writeText(roomId);
-      toast.info("Room Code Copied")
+      toast.info("Room Code Copied");
     } catch {
       toast.error("Copy failed");
     }
