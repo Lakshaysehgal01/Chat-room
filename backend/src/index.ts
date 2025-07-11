@@ -1,4 +1,5 @@
 import { WebSocketServer, WebSocket } from "ws";
+import { broadcastUserCount } from "./util";
 
 const wss = new WebSocketServer({ port: 8080 });
 const arina = new Map<string, Set<WebSocket>>();
@@ -12,7 +13,6 @@ const userName = new Map<WebSocket, string>();
 
 wss.on("connection", (socket) => {
   socket.on("error", console.error);
-
   socket.on("message", (data) => {
     try {
       const { type, payload } = JSON.parse(data.toString());
@@ -27,7 +27,8 @@ wss.on("connection", (socket) => {
         arina.get(roomId)?.add(socket);
         user.set(socket, roomId);
         userName.set(socket, name);
-        socket.send("User joined room " + roomId);
+        socket.send(name + " joined room " + roomId);
+        broadcastUserCount(roomId, arina);
       } else if (type === "chat") {
         const msg = payload?.message;
         if (!msg) {
@@ -64,6 +65,8 @@ wss.on("connection", (socket) => {
         arina.get(roomId)?.delete(socket);
         if (arina.get(roomId)?.size === 0) {
           arina.delete(roomId);
+        } else {
+          broadcastUserCount(roomId, arina);
         }
         userName.delete(socket);
         user.delete(socket);
